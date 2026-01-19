@@ -1,6 +1,7 @@
 from flask import Flask, request, redirect, render_template, session, url_for
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
+from urllib.parse import urlparse
 from datetime import datetime
 import os
 import json
@@ -10,12 +11,22 @@ from config import Config
 app = Flask(__name__)
 app.secret_key = Config.FLASK_SECRET_KEY
 
+# -------- Authorization Mapping --------
+
+# Entra group Object ID → internal role
+GROUP_ROLE_MAP = {
+    # Example:
+    # "11111111-aaaa-bbbb-cccc-222222222222": "admin",
+    # "33333333-dddd-eeee-ffff-444444444444": "viewer",
+}
+
+GROUP_CLAIM_URI = "http://schemas.microsoft.com/ws/2008/06/identity/claims/groups"
 
 # -------- Helpers --------
 
 def prepare_flask_request(req):
     return {
-        "https": "on" if req.scheme == "https" else "off",
+        "https": "off",
         "http_host": req.host,
         "script_name": req.path,
         "server_port": req.environ.get("SERVER_PORT"),
@@ -29,26 +40,31 @@ def init_saml_auth(req):
     Initialise SAML auth using:
     - settings.json for SP structure
     - environment variables for IdP-sensitive values
-
-    This avoids python3-saml's internal get_settings() mutation pitfalls.
     """
     base_path = os.path.join(os.path.dirname(__file__), "saml")
 
-    # Load raw settings.json (authoritative schema)
+    # Load raw settings.json
     with open(os.path.join(base_path, "settings.json"), "r") as f:
         settings_dict = json.load(f)
 
-    # Overlay IdP values from environment variables
+    # Overlay IdP values from env vars
     settings_dict["idp"]["entityId"] = Config.SAML_IDP_ENTITY_ID
     settings_dict["idp"]["singleSignOnService"]["url"] = Config.SAML_IDP_SSO_URL
-    settings_dict["idp"]["x509cert"] = Config.SAML_IDP_X509CERT
 
-    # Build validated settings object
+    # ---- Certificate handling (rotation-aware) ----
+    if Config.SAML_IDP_X509CERTS:
+        settings_dict["idp"]["x509certMulti"] = {
+            "signing": Config.SAML_IDP_X509CERTS
+        }
+    else:
+        settings_dict["idp"]["x509cert"] = Config.SAML_IDP_X509CERT
+
     settings = OneLogin_Saml2_Settings(
         settings=settings_dict,
         custom_base_path=base_path
     )
 
+    # IMPORTANT: python3-saml requires positional argument
     return OneLogin_Saml2_Auth(req, settings)
 
 
@@ -80,18 +96,41 @@ def acs():
 
     errors = auth.get_errors()
     if errors:
+        print("SAML ERRORS:", errors)
+        print("SAML LAST ERROR:", auth.get_last_error_reason())
         return f"SAML error: {errors}", 400
 
     if not auth.is_authenticated():
         return "Not authenticated", 403
 
-    session["samlUserdata"] = auth.get_attributes()
+    # ---- Base session state ----
+    attributes = auth.get_attributes()
+
+    session["samlUserdata"] = attributes
     session["samlNameId"] = auth.get_nameid()
     session["samlSessionIndex"] = auth.get_session_index()
     session["login_time"] = datetime.utcnow().isoformat()
-
-    # Default debug state from env
     session["debug"] = Config.SAML_DEBUG
+
+    # ---- Certificate observability (debug only) ----
+    if session.get("debug"):
+        try:
+            session["idp_cert_fingerprint"] = (
+                auth.get_settings().get_idp_cert_fingerprint()
+            )
+        except Exception:
+            session["idp_cert_fingerprint"] = None
+
+    # ---- Group / Role Mapping ----
+    groups = attributes.get(GROUP_CLAIM_URI, [])
+
+    roles = set()
+    for group_id in groups:
+        if group_id in GROUP_ROLE_MAP:
+            roles.add(GROUP_ROLE_MAP[group_id])
+
+    session["groups"] = groups
+    session["roles"] = sorted(list(roles))
 
     return redirect(url_for("claims"))
 
@@ -106,6 +145,8 @@ def claims():
         attributes=session["samlUserdata"],
         nameid=session.get("samlNameId"),
         session_index=session.get("samlSessionIndex"),
+        roles=session.get("roles", []),
+        groups=session.get("groups", []),
         debug=session.get("debug", False)
     )
 
@@ -126,21 +167,56 @@ def logout():
 @app.route("/slo")
 def slo():
     if not Config.SAML_ENABLE_SLO:
-        return "Single Logout (SLO) is disabled by configuration.", 403
+        session.clear()
+        return redirect(url_for("index"))
 
     if "samlNameId" not in session or "samlSessionIndex" not in session:
         session.clear()
         return redirect(url_for("index"))
 
+    try:
+        req = prepare_flask_request(request)
+        auth = init_saml_auth(req)
+
+        return redirect(
+            auth.logout(
+                name_id=session["samlNameId"],
+                session_index=session["samlSessionIndex"]
+            )
+        )
+    except Exception as e:
+        # Fail safe: never break the app
+        session.clear()
+        return redirect(url_for("index"))
+    
+
+@app.route("/slo/callback")
+def slo_callback():
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
 
-    return redirect(
-        auth.logout(
-            name_id=session["samlNameId"],
-            session_index=session["samlSessionIndex"]
-        )
-    )
+    auth.process_slo()
+
+    errors = auth.get_errors()
+
+    logout_source = session.get("logout_initiated_by", "idp")
+
+    session.clear()
+
+    if errors:
+        return f"SLO error ({logout_source}-initiated): {errors}", 400
+
+    # Optional: store logout reason for UI
+    session["last_logout"] = {
+        "source": logout_source,
+        "time": datetime.utcnow().isoformat()
+    }
+
+    return redirect(url_for("logout_complete"))
+
+@app.route("/logout-complete")
+def logout_complete():
+    return render_template("logout.html")
 
 
 # -------- Entrypoint --------

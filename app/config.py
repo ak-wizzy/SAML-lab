@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 
-# Load .env if present (safe no-op if missing)
 load_dotenv()
 
 
@@ -20,6 +19,9 @@ class Config:
     SAML_IDP_ENTITY_ID = get_env("SAML_IDP_ENTITY_ID", required=True)
     SAML_IDP_SSO_URL = get_env("SAML_IDP_SSO_URL", required=True)
     SAML_IDP_X509CERT = get_env("SAML_IDP_X509CERT", required=True)
+
+    # ❌ NO cert rotation for now
+    SAML_IDP_X509CERTS = []
 
     # Feature flags
     SAML_DEBUG = get_env("SAML_DEBUG", "false").lower() == "true"

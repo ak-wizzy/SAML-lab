@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+  <title>Logged out</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 2rem;
+    }
+    .muted {
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>You have been logged out</h1>
+
+  {% if session.get("last_logout") %}
+    <p class="muted">
+      Logout source: {{ session.get("last_logout").source }}<br>
+      Time (UTC): {{ session.get("last_logout").time }}
+    </p>
+  {% endif %}
+
+  <p><a href="/">Return to home</a></p>
+</body>
+</html>
