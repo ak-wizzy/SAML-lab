@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head><title>SAML Claims</title></head>
+<body>
+  <h1>SAML Claims</h1>
+
+  <p><strong>NameID:</strong> {{ nameid }}</p>
+
+  <ul>
+    {% for key, values in attributes.items() %}
+      <li><strong>{{ key }}</strong>: {{ values }}</li>
+    {% endfor %}
+  </ul>
+
+  <a href="/">Home</a>
+</body>
+</html>

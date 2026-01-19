@@ -1,0 +1,27 @@
+{
+  "strict": true,
+  "debug": true,
+
+  "sp": {
+    "entityId": "http://localhost:5000/metadata",
+    "assertionConsumerService": {
+      "url": "http://localhost:5000/acs",
+      "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+    },
+    "singleLogoutService": {
+      "url": "http://localhost:5000/logout",
+      "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+    },
+    "x509cert": "",
+    "privateKey": ""
+  },
+
+  "idp": {
+    "entityId": "https://sts.windows.net/e21b46c3-349f-4ced-b138-29d7e76746f6/",
+    "singleSignOnService": {
+      "url": "https://login.microsoftonline.com/e21b46c3-349f-4ced-b138-29d7e76746f6/saml2",
+      "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+    },
+    "x509cert": "MIIC8DCCAdigAwIBAgIQKxs2xuY7dINBhZJ7lzkmejANBgkqhkiG9w0BAQsFADA0MTIwMAYDVQQDEylNaWNyb3NvZnQgQXp1cmUgRmVkZXJhdGVkIFNTTyBDZXJ0aWZpY2F0ZTAeFw0yNjAxMTkxMTIwMzFaFw0yOTAxMTkxMTIwMzFaMDQxMjAwBgNVBAMTKU1pY3Jvc29mdCBBenVyZSBGZWRlcmF0ZWQgU1NPIENlcnRpZmljYXRlMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtT475sW66E5SgN6GweRLjSmiEB9YZZtfo9l1hzqcKpuB7cbYImkptmji/0+ZoEIF581V676ie196yku4VJb9rxf3VG5ZIQKfMA5YBFaffF1rQSTAgkttjvcAOihQaMRhTQmd3AJ20DGGJy/PUagvZUjdTi05ygYY1ijj0noxH/cu0+0tGn8RocjL9b8H+0Bve7+lcTrrjEXk4tXYB8AGgOeROeFMe1XfMg1XBYwGZFpz399mkzIMlmakmuW96FVw0DqT3EQFcYNRUslH9KZA4D+4tbn0uJwV5FXbKKmvIiabPtJvAQASO+96+fX3hJBPPdvN1oBwQbxnXDtYfQRNRQIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQBj3AVw2ijNhM1vwDewk4+v7W34yuT6UhOaiu/ySkFTeQsVZ/jCyCVIoedCQCO2zNr5uAXrNVc2mLi05IEBGindQfypElS6IH6yBX1cdTkc5lx1+p4Cfb6JTbIJh4/XeudnNpVY70G9LUZGBVe8/O6iPo/rkxmMEW45KgtkJ/H73XhIXbtOCOu417+pUQsAIRbTWsajiL/I15J/a7Fdczq7yIDCM/nnqrOeln1jPvDqjGNNvMnxg4/Gs6ezq5ie1oUZEwM5mUjG00QuA+JrvsWrs4htiY1B2sPtmhoW2oWTOE/sjbsqI8vomR1nUH7yheNeGQOVuevwhiXILijR9nq8"
+  }
+}

@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head><title>SAML Lab</title></head>
+<body>
+  <h1>SAML Test App</h1>
+
+  {% if authenticated %}
+    <p>Authenticated ✅</p>
+    <a href="/claims">View Claims</a><br>
+    <a href="/logout">Logout</a>
+  {% else %}
+    <p>Not authenticated ❌</p>
+    <a href="/login">Login with Entra ID</a>
+  {% endif %}
+</body>
+</html>
