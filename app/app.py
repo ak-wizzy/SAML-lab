@@ -1,7 +1,6 @@
 from flask import Flask, request, redirect, render_template, session, url_for
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
-from urllib.parse import urlparse
 from datetime import datetime
 import os
 import json
@@ -21,6 +20,10 @@ GROUP_ROLE_MAP = {
 }
 
 GROUP_CLAIM_URI = "http://schemas.microsoft.com/ws/2008/06/identity/claims/groups"
+
+# Name attribute claim URIs
+GIVEN_NAME_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+SURNAME_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
 
 # -------- Helpers --------
 
@@ -64,7 +67,6 @@ def init_saml_auth(req):
         custom_base_path=base_path
     )
 
-    # IMPORTANT: python3-saml requires positional argument
     return OneLogin_Saml2_Auth(req, settings)
 
 
@@ -85,7 +87,8 @@ def index():
 def login():
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
-    return redirect(auth.login())
+    return redirect(auth.login(force_authn=True))
+
 
 
 @app.route("/acs", methods=["POST"])
@@ -105,6 +108,16 @@ def acs():
 
     # ---- Base session state ----
     attributes = auth.get_attributes()
+
+    # ---- Mandatory name enforcement ----
+    given_name = attributes.get(GIVEN_NAME_CLAIM)
+    surname = attributes.get(SURNAME_CLAIM)
+
+    if not given_name or not surname:
+        return (
+            "Login blocked: given name and surname are required for this application.",
+            403
+        )
 
     session["samlUserdata"] = attributes
     session["samlNameId"] = auth.get_nameid()
@@ -159,7 +172,6 @@ def toggle_debug():
 
 @app.route("/logout")
 def logout():
-    # Local logout only
     session.clear()
     return redirect(url_for("index"))
 
@@ -184,11 +196,10 @@ def slo():
                 session_index=session["samlSessionIndex"]
             )
         )
-    except Exception as e:
-        # Fail safe: never break the app
+    except Exception:
         session.clear()
         return redirect(url_for("index"))
-    
+
 
 @app.route("/slo/callback")
 def slo_callback():
@@ -198,21 +209,13 @@ def slo_callback():
     auth.process_slo()
 
     errors = auth.get_errors()
-
-    logout_source = session.get("logout_initiated_by", "idp")
-
     session.clear()
 
     if errors:
-        return f"SLO error ({logout_source}-initiated): {errors}", 400
-
-    # Optional: store logout reason for UI
-    session["last_logout"] = {
-        "source": logout_source,
-        "time": datetime.utcnow().isoformat()
-    }
+        return f"SLO error: {errors}", 400
 
     return redirect(url_for("logout_complete"))
+
 
 @app.route("/logout-complete")
 def logout_complete():
