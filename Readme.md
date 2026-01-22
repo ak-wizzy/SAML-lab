@@ -198,3 +198,8 @@ A known-good baseline
 A reference point for future iterations
 
 All future changes will be built on top of this foundation.
+
+====================== V1.01 =================================
+
+Minor addition:
+Mandatory requirement for givenName and surNamne attributes.
