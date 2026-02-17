@@ -1,8 +1,6 @@
 services:
   saml-serivce:
     build: .
-    env_file:
-      - .env
     networks:
       - proxy
    
