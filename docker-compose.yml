@@ -3,6 +3,12 @@ services:
     build: .
     environment:
       - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
+      - SAML_IDP_ENTITY_ID=${SAML_IDP_ENTITY_ID}
+      - SAML_IDP_SSO_URL=${SAML_IDP_SSO_URL}
+      - SAML_IDP_X509CERT=${SAML_IDP_X509CERT}
+      - SAML_DEBUG=${SAML_DEBUG}
+      - SAML_ENABLE_SLO=${SAML_ENABLE_SLO}
+      
     networks:
       - reverse-proxy
    
