@@ -1,6 +1,8 @@
 services:
   saml-serivce:
     build: .
+    environment:
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
     networks:
       - reverse-proxy
    
