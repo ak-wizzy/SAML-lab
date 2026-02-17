@@ -5,5 +5,5 @@ services:
       - reverse-proxy
    
 networks:
-  proxy:
+  reverse-proxy:
     external: true
