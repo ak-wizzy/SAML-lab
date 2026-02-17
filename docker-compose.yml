@@ -2,7 +2,7 @@ services:
   saml-serivce:
     build: .
     networks:
-      - proxy
+      - reverse-proxy
    
 networks:
   proxy:
