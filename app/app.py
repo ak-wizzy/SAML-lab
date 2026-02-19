@@ -28,11 +28,14 @@ SURNAME_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
 # -------- Helpers --------
 
 def prepare_flask_request(req):
+    forwarded_proto = req.headers.get("X-Forwarded-Proto", req.scheme)
+    forwarded_host = req.headers.get("Host", req.host)
+
     return {
-        "https": "off",
-        "http_host": req.host,
+        "https": "on" if forwarded_proto == "https" else "off",
+        "http_host": forwarded_host,
         "script_name": req.path,
-        "server_port": req.environ.get("SERVER_PORT"),
+        "server_port": "443" if forwarded_proto == "https" else req.environ.get("SERVER_PORT"),
         "get_data": req.args.copy(),
         "post_data": req.form.copy()
     }
