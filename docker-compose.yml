@@ -1,6 +1,7 @@
 services:
   saml-lab:
     build: .
+    container_name: saml-service
     environment:
       - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
       - SAML_IDP_ENTITY_ID=${SAML_IDP_ENTITY_ID}
