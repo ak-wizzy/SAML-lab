@@ -1,5 +1,5 @@
 services:
-  saml-service:
+  saml-lab:
     build: .
     environment:
       - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
