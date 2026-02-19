@@ -3,13 +3,13 @@
   "debug": false,
 
   "sp": {
-    "entityId": "https://saml-service.aktechnoservices.com:5000/metadata",
+    "entityId": "https://saml-service.aktechnoservices.com/metadata",
     "assertionConsumerService": {
-      "url": "https://saml-service.aktechnoservices.com:5000/acs",
+      "url": "https://saml-service.aktechnoservices.com/acs",
       "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
     },
     "singleLogoutService": {
-      "url": "https://saml-service.aktechnoservices.com:5000/slo",
+      "url": "https://saml-service.aktechnoservices.com/slo",
       "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
     },
     "x509cert": "",
