@@ -3,13 +3,13 @@
   "debug": false,
 
   "sp": {
-    "entityId": "http://127.0.0.1:5000/metadata",
+    "entityId": "http://saml-service.aktechnoservices.com:5000/metadata",
     "assertionConsumerService": {
-      "url": "http://127.0.0.1:5000/acs",
+      "url": "http://saml-service.aktechnoservices.com:5000/acs",
       "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
     },
     "singleLogoutService": {
-      "url": "http://127.0.0.1:5000/slo",
+      "url": "http://saml-service.aktechnoservices.com:5000/slo",
       "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
     },
     "x509cert": "",
