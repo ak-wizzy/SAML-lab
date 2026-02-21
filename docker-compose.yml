@@ -15,6 +15,7 @@ services:
       - "traefik.http.routers.saml-service.rule=Host(`saml-service.aktechnoservices.com`)"
       - "traefik.http.routers.saml-service.entrypoints=websecure"
       - "traefik.http.routers.saml-service.tls.certresolver=cloudflare"
+      - "traefik.http.routers.saml-service.middlewares=secured-chain@docker"
       - "traefik.http.services.saml-service.loadbalancer.server.port=5000"
     
     networks:
