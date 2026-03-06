@@ -94,7 +94,7 @@ def login():
     provider = request.args.get("provider")
 
     if provider == "google":
-        return redirect(auth.login(extra_parameters={"domain_hint": "google.com"}))
+        return redirect(auth.login(parameters={"domain_hint": "google.com"}))
 
     return redirect(auth.login())
 
