@@ -93,10 +93,20 @@ def login():
 
     provider = request.args.get("provider")
 
-    if provider == "google":
-        return redirect(auth.login(parameters={"domain_hint": "google.com"}))
+    # Default SAML login URL
+    login_url = auth.login()
 
-    return redirect(auth.login())
+    # Route to Google via Entra
+    if provider == "google":
+        login_url = login_url + "&domain_hint=google.com"
+
+    elif provider == "facebook":
+        login_url = login_url + "&domain_hint=facebook.com"
+
+    elif provider == "apple":
+        login_url = login_url + "&domain_hint=apple.com"
+
+    return redirect(login_url)
 
 
 
