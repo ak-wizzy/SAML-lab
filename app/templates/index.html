@@ -1,16 +1,118 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head><title>SAML Service</title></head>
-<body>
-  <h1>SAML Service App</h1>
+<head>
 
-  {% if authenticated %}
-    <p>Authenticated ✅</p>
-    <a href="/claims">View Claims</a><br>
-    <a href="/logout">Logout</a>
-  {% else %}
-    <p>Not authenticated ❌</p>
-    <a href="/login">Login with Entra ID</a>
-  {% endif %}
+<title>AK~TECHONO SSO Identity Lab</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+
+<style>
+
+body{
+background:#0f172a;
+color:white;
+font-family:system-ui;
+}
+
+.container-box{
+max-width:600px;
+margin:auto;
+margin-top:80px;
+padding:40px;
+background:#1e293b;
+border-radius:10px;
+box-shadow:0 0 30px rgba(0,0,0,0.4);
+text-align:center;
+}
+
+.logo{
+width:120px;
+margin-bottom:20px;
+}
+
+.btn-login{
+width:100%;
+margin-bottom:12px;
+font-weight:600;
+}
+
+.status{
+margin-top:20px;
+font-size:14px;
+color:#cbd5f5;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container-box">
+
+<!-- Logo placeholder -->
+<img src="/static/logo.png" class="logo">
+
+<h3>SAML Identity Lab</h3>
+
+<p style="opacity:0.7;">
+Authentication & Federation Playground
+</p>
+
+<hr>
+
+<a href="/login" class="btn btn-primary btn-login">
+Login with Microsoft
+</a>
+
+<a href="/login?provider=google" class="btn btn-danger btn-login">
+Login with Google
+</a>
+
+<a href="/login?provider=facebook" class="btn btn-primary btn-login">
+Login with Facebook
+</a>
+
+<a href="/login?provider=apple" class="btn btn-dark btn-login">
+Login with Apple ID
+</a>
+
+<hr>
+
+<a href="/toggle-debug" class="btn btn-warning btn-login">
+Toggle Debug Panel
+</a>
+
+<div class="status">
+
+{% if authenticated %}
+
+<p>Authenticated as:</p>
+<strong>{{ nameid }}</strong>
+
+<br>
+Login time: {{ login_time }}
+
+<br><br>
+
+<a href="/claims" class="btn btn-success">
+View Claims
+</a>
+
+<a href="/logout" class="btn btn-secondary">
+Logout
+</a>
+
+{% else %}
+
+<p>Not authenticated</p>
+
+{% endif %}
+
+</div>
+
+</div>
+
 </body>
 </html>
