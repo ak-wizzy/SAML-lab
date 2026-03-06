@@ -85,29 +85,11 @@ def index():
         debug=session.get("debug", False)
     )
 
-
 @app.route("/login")
 def login():
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
-
-    provider = request.args.get("provider")
-
-    # Default SAML login URL
-    login_url = auth.login()
-
-    # Route to Google via Entra
-    if provider == "google":
-        login_url = login_url + "&domain_hint=google.com"
-
-    elif provider == "facebook":
-        login_url = login_url + "&domain_hint=facebook.com"
-
-    elif provider == "apple":
-        login_url = login_url + "&domain_hint=apple.com"
-
-    return redirect(login_url)
-
+    return redirect(auth.login())
 
 
 @app.route("/acs", methods=["POST"])
