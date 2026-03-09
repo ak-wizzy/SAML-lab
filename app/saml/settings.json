@@ -27,5 +27,9 @@
       "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
     },
     "x509cert": ""
+  },
+
+  "security": {
+    "requestedAuthnContext": false
   }
 }
