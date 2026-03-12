@@ -98,7 +98,7 @@ def login_google():
 
     login_url = auth.login(force_authn=True)
 
-    return redirect(login_url + "&domain_hint=google.com")
+    return redirect(login_url + "&idp=google")
 
 @app.route("/login/facebook")
 def login_facebook():
@@ -107,7 +107,7 @@ def login_facebook():
 
     login_url = auth.login(force_authn=True)
 
-    return redirect(login_url + "&domain_hint=facebook.com")
+    return redirect(login_url + "&idp=facebook")
 
 @app.route("/login/apple")
 def login_apple():
@@ -116,7 +116,7 @@ def login_apple():
 
     login_url = auth.login(force_authn=True)
 
-    return redirect(login_url + "&domain_hint=apple.com")
+    return redirect(login_url + "&=Apple")
 
 
 @app.route("/acs", methods=["POST"])
