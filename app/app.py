@@ -95,19 +95,28 @@ def login():
 def login_google():
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
-    return redirect(auth.login(force_authn=True) + "&idp=Google")
+
+    login_url = auth.login(force_authn=True)
+
+    return redirect(login_url + "&domain_hint=google.com")
 
 @app.route("/login/facebook")
 def login_facebook():
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
-    return redirect(auth.login(force_authn=True) + "&idp=Facebook")
+
+    login_url = auth.login(force_authn=True)
+
+    return redirect(login_url + "&domain_hint=facebook.com")
 
 @app.route("/login/apple")
 def login_apple():
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
-    return redirect(auth.login(force_authn=True) + "&idp=Apple")
+
+    login_url = auth.login(force_authn=True)
+
+    return redirect(login_url + "&domain_hint=apple.com")
 
 
 @app.route("/acs", methods=["POST"])
