@@ -4,11 +4,26 @@ from onelogin.saml2.settings import OneLogin_Saml2_Settings
 from datetime import datetime
 import os
 import json
-
+import logging
+from werkzeug.middleware.proxy_fix import ProxyFix
 from config import Config
 
 app = Flask(__name__)
 app.secret_key = Config.FLASK_SECRET_KEY
+
+# --- Proxy fix (Traefik support) ---
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+# --- Session security ---
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax"
+)
+
+# --- Logging ---
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # -------- Authorization Mapping --------
 
@@ -127,8 +142,8 @@ def acs():
 
     errors = auth.get_errors()
     if errors:
-        print("SAML ERRORS:", errors)
-        print("SAML LAST ERROR:", auth.get_last_error_reason())
+        logger.error(f"SAML ERRORS: {errors}")
+        logger.error(f"SAML LAST ERROR: {auth.get_last_error_reason()}")
         return f"SAML error: {errors}", 400
 
     if not auth.is_authenticated():
