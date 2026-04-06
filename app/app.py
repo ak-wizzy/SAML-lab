@@ -11,6 +11,14 @@ from config import Config
 app = Flask(__name__)
 app.secret_key = Config.FLASK_SECRET_KEY
 
+
+# Hook into Gunicorn's logger
+gunicorn_logger = logging.getLogger("gunicorn.error")
+
+logger = logging.getLogger(__name__)
+logger.handlers = gunicorn_logger.handlers
+logger.setLevel(gunicorn_logger.level)
+
 # --- Proxy fix (Traefik support) ---
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
@@ -20,10 +28,6 @@ app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax"
 )
-
-# --- Logging ---
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # -------- Authorization Mapping --------
 
